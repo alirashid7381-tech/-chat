@@ -1,0 +1,2104 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مجلس ضاحية الرحمانية - المحادثة الذكية</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #1a5f7a;
+            --secondary-color: #2a9d8f;
+            --accent-color: #ff9f1c;
+            --light-color: #f8f9fa;
+            --dark-color: #343a40;
+            --success-color: #28a745;
+            --warning-color: #ffc107;
+            --danger-color: #dc3545;
+            --chat-bg: #f0f2f5;
+            --user-msg: #0084ff;
+            --ai-msg: #ffffff;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, 'Segoe UI Arabic', sans-serif;
+        }
+        
+        body {
+            background-color: var(--chat-bg);
+            color: var(--dark-color);
+            line-height: 1.6;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        /* الهيدر المدمج مع المحادثة */
+        .chat-header {
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            padding: 0.8rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            z-index: 100;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .logo-icon {
+            font-size: 1.8rem;
+            color: #ffd166;
+        }
+        
+        .header-info h1 {
+            font-size: 1.3rem;
+            margin-bottom: 3px;
+        }
+        
+        .header-info p {
+            font-size: 0.8rem;
+            opacity: 0.9;
+        }
+        
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .header-btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: none;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .header-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: scale(1.05);
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #ffd166;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--primary-color);
+            font-weight: bold;
+        }
+        
+        /* التصميم الرئيسي - تركيز على المحادثة */
+        .app-container {
+            display: flex;
+            height: 100vh;
+            padding-top: 60px; /* للهيدر الثابت */
+        }
+        
+        /* الشريط الجانبي القابل للطي */
+        .sidebar {
+            width: 300px;
+            background: white;
+            border-left: 1px solid #ddd;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            transition: transform 0.3s ease;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);
+            z-index: 50;
+        }
+        
+        .sidebar.hidden {
+            transform: translateX(100%);
+        }
+        
+        .sidebar-header {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .sidebar-header h3 {
+            color: var(--primary-color);
+            font-size: 1.1rem;
+        }
+        
+        .close-sidebar {
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+            color: #666;
+            cursor: pointer;
+        }
+        
+        .sidebar-content {
+            flex: 1;
+            overflow-y: auto;
+            padding: 15px;
+        }
+        
+        .sidebar-section {
+            margin-bottom: 25px;
+        }
+        
+        .section-title {
+            color: var(--primary-color);
+            margin-bottom: 12px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .quick-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .action-btn {
+            background: var(--light-color);
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 12px 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+        
+        .action-btn:hover {
+            background: var(--secondary-color);
+            color: white;
+            border-color: var(--secondary-color);
+            transform: translateY(-2px);
+        }
+        
+        .action-btn i {
+            font-size: 1.3rem;
+            margin-bottom: 6px;
+        }
+        
+        .action-btn span {
+            font-size: 0.8rem;
+        }
+        
+        .suggested-questions {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        
+        .suggested-question {
+            background: #f8f9fa;
+            border: 1px solid #eaeaea;
+            border-radius: 8px;
+            padding: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+            border-right: 3px solid transparent;
+        }
+        
+        .suggested-question:hover {
+            background: #e8f4f3;
+            border-right-color: var(--secondary-color);
+            transform: translateX(-3px);
+        }
+        
+        /* منطقة المحادثة الرئيسية */
+        .chat-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            background: white;
+            position: relative;
+        }
+        
+        /* منطقة الرسائل - تأخذ معظم المساحة */
+        .chat-messages {
+            flex: 1;
+            overflow-y: auto;
+            padding: 20px;
+            background: var(--chat-bg);
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .message-container {
+            max-width: 100%;
+            display: flex;
+            margin-bottom: 20px;
+            animation: messageAppear 0.3s ease-out;
+        }
+        
+        @keyframes messageAppear {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .user-message-container {
+            justify-content: flex-end;
+        }
+        
+        .ai-message-container {
+            justify-content: flex-start;
+        }
+        
+        .message {
+            max-width: 75%;
+            min-width: 200px;
+            position: relative;
+        }
+        
+        .user-message {
+            background: var(--user-msg);
+            color: white;
+            border-radius: 18px 18px 4px 18px;
+            padding: 15px 20px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        
+        .ai-message {
+            background: var(--ai-msg);
+            color: var(--dark-color);
+            border-radius: 18px 18px 18px 4px;
+            padding: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
+            border: 1px solid #e0e0e0;
+        }
+        
+        .message-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        
+        .message-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        
+        .user-avatar-small {
+            background: var(--user-msg);
+            color: white;
+        }
+        
+        .ai-avatar {
+            background: linear-gradient(135deg, var(--accent-color) 0%, #ffbf69 100%);
+            color: white;
+        }
+        
+        .message-sender {
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+        
+        .ai-message .message-sender {
+            color: var(--primary-color);
+        }
+        
+        .user-message .message-sender {
+            color: rgba(255, 255, 255, 0.9);
+        }
+        
+        .message-text {
+            line-height: 1.7;
+            font-size: 1rem;
+        }
+        
+        .user-message .message-text {
+            font-size: 1.05rem;
+        }
+        
+        .ai-message .message-text {
+            font-size: 1.05rem;
+        }
+        
+        .message-time {
+            font-size: 0.75rem;
+            margin-top: 10px;
+            opacity: 0.7;
+            text-align: left;
+        }
+        
+        .user-message .message-time {
+            text-align: right;
+            color: rgba(255, 255, 255, 0.8);
+        }
+        
+        .ai-message .message-time {
+            color: #666;
+        }
+        
+        .message-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            padding-top: 10px;
+            border-top: 1px solid rgba(255, 255, 255, 0.2);
+        }
+        
+        .user-message .message-actions {
+            border-top-color: rgba(255, 255, 255, 0.2);
+        }
+        
+        .ai-message .message-actions {
+            border-top-color: rgba(0, 0, 0, 0.05);
+        }
+        
+        .action-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+        }
+        
+        .ai-message .action-icon {
+            background: #f0f0f0;
+            color: #666;
+        }
+        
+        .action-icon:hover {
+            transform: scale(1.1);
+            background: rgba(255, 255, 255, 0.3);
+        }
+        
+        .ai-message .action-icon:hover {
+            background: var(--secondary-color);
+            color: white;
+        }
+        
+        .follow-up-section {
+            margin-top: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            border-right: 3px solid var(--secondary-color);
+        }
+        
+        .follow-up-title {
+            font-size: 0.9rem;
+            color: var(--primary-color);
+            margin-bottom: 12px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .follow-up-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .follow-up-item {
+            padding: 10px 15px;
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 0.9rem;
+            border: 1px solid #eee;
+        }
+        
+        .follow-up-item:hover {
+            background: #e8f4f3;
+            border-color: var(--secondary-color);
+            transform: translateX(3px);
+        }
+        
+        /* مؤشر التفكير */
+        .thinking-indicator {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 20px;
+            background: white;
+            border-radius: 18px;
+            border: 1px solid #e0e0e0;
+            max-width: 75%;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+        
+        .thinking-dots {
+            display: flex;
+            gap: 5px;
+        }
+        
+        .thinking-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: var(--secondary-color);
+            animation: pulse 1.5s infinite ease-in-out;
+        }
+        
+        .thinking-dot:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+        
+        .thinking-dot:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 0.4; transform: scale(0.9); }
+            50% { opacity: 1; transform: scale(1.1); }
+        }
+        
+        /* منطقة الإدخال الكبيرة */
+        .input-container {
+            padding: 20px;
+            background: white;
+            border-top: 1px solid #e0e0e0;
+            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+        }
+        
+        .input-wrapper {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        .input-area {
+            display: flex;
+            gap: 15px;
+            align-items: flex-end;
+            margin-bottom: 10px;
+        }
+        
+        .message-input {
+            flex: 1;
+            padding: 18px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 12px;
+            font-size: 1.05rem;
+            resize: none;
+            max-height: 150px;
+            min-height: 60px;
+            transition: all 0.3s;
+            background: #f8f9fa;
+            line-height: 1.6;
+        }
+        
+        .message-input:focus {
+            outline: none;
+            border-color: var(--secondary-color);
+            background: white;
+            box-shadow: 0 0 0 3px rgba(42, 157, 143, 0.1);
+        }
+        
+        .send-button {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary-color) 0%, var(--secondary-color) 100%);
+            color: white;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            flex-shrink: 0;
+            font-size: 1.2rem;
+        }
+        
+        .send-button:hover {
+            background: linear-gradient(135deg, #164c63 0%, #248d81 100%);
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(26, 95, 122, 0.3);
+        }
+        
+        .send-button:disabled {
+            background: #cccccc;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+        
+        .input-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            color: #666;
+            font-size: 0.85rem;
+            padding: 0 5px;
+        }
+        
+        .input-actions {
+            display: flex;
+            gap: 20px;
+        }
+        
+        .input-action {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            padding: 6px 10px;
+            border-radius: 6px;
+            transition: all 0.3s;
+            color: #555;
+        }
+        
+        .input-action:hover {
+            background: #f0f0f0;
+            color: var(--primary-color);
+        }
+        
+        .typing-indicator {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: #666;
+            font-size: 0.85rem;
+        }
+        
+        /* رسالة الترحيب الكبيرة */
+        .welcome-section {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 40px 20px;
+            text-align: center;
+            height: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+        
+        .welcome-icon {
+            font-size: 4rem;
+            color: var(--secondary-color);
+            margin-bottom: 20px;
+            animation: float 3s ease-in-out infinite;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .welcome-section h2 {
+            color: var(--primary-color);
+            font-size: 2.2rem;
+            margin-bottom: 15px;
+        }
+        
+        .welcome-section p {
+            color: #555;
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin-bottom: 30px;
+            line-height: 1.7;
+        }
+        
+        .welcome-features {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin: 30px 0;
+            max-width: 600px;
+        }
+        
+        .welcome-feature {
+            background: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
+            transition: transform 0.3s;
+        }
+        
+        .welcome-feature:hover {
+            transform: translateY(-5px);
+        }
+        
+        .welcome-feature i {
+            font-size: 2rem;
+            color: var(--secondary-color);
+            margin-bottom: 15px;
+        }
+        
+        .welcome-feature h4 {
+            color: var(--primary-color);
+            margin-bottom: 8px;
+            font-size: 1.1rem;
+        }
+        
+        .welcome-feature p {
+            font-size: 0.9rem;
+            margin: 0;
+            color: #666;
+        }
+        
+        /* الفوتر المدمج */
+        .chat-footer {
+            padding: 12px 20px;
+            background: white;
+            border-top: 1px solid #e0e0e0;
+            font-size: 0.8rem;
+            color: #666;
+            text-align: center;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        /* إشعارات */
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background: var(--secondary-color);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            z-index: 1000;
+            animation: slideIn 0.3s ease-out;
+            max-width: 350px;
+        }
+        
+        @keyframes slideIn {
+            from { transform: translateX(-100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        .notification.hidden {
+            animation: slideOut 0.3s ease-out;
+            transform: translateX(-100%);
+            opacity: 0;
+        }
+        
+        @keyframes slideOut {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(-100%); opacity: 0; }
+        }
+        
+        /* تحسين التمرير */
+        .chat-messages::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .chat-messages::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+        
+        .chat-messages::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 4px;
+        }
+        
+        .chat-messages::-webkit-scrollbar-thumb:hover {
+            background: #a8a8a8;
+        }
+        
+        /* تصميم متجاوب */
+        @media (max-width: 1024px) {
+            .message {
+                max-width: 85%;
+            }
+            
+            .welcome-features {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .sidebar {
+                position: fixed;
+                top: 60px;
+                right: 0;
+                bottom: 0;
+                width: 100%;
+                max-width: 320px;
+            }
+            
+            .message {
+                max-width: 90%;
+                min-width: 180px;
+            }
+            
+            .header-info h1 {
+                font-size: 1.1rem;
+            }
+            
+            .header-info p {
+                font-size: 0.75rem;
+            }
+            
+            .welcome-section h2 {
+                font-size: 1.8rem;
+            }
+            
+            .welcome-section p {
+                font-size: 1rem;
+            }
+            
+            .quick-actions {
+                grid-template-columns: 1fr;
+            }
+            
+            .chat-footer {
+                flex-direction: column;
+                gap: 8px;
+                text-align: center;
+            }
+            
+            .input-actions {
+                gap: 10px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .message {
+                max-width: 95%;
+                min-width: 160px;
+            }
+            
+            .message-input {
+                padding: 15px;
+                font-size: 1rem;
+            }
+            
+            .send-button {
+                width: 50px;
+                height: 50px;
+            }
+            
+            .welcome-section h2 {
+                font-size: 1.5rem;
+            }
+            
+            .welcome-feature {
+                padding: 15px;
+            }
+            
+            .input-footer {
+                flex-direction: column;
+                gap: 10px;
+                align-items: flex-start;
+            }
+        }
+        
+        /* إخفاء الشريط الجانبي افتراضياً على الشاشات الصغيرة */
+        @media (max-width: 768px) {
+            .sidebar {
+                transform: translateX(100%);
+            }
+            
+            .sidebar.visible {
+                transform: translateX(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- الهيدر المدمج -->
+    <header class="chat-header">
+        <div class="header-left">
+            <div class="logo-icon">
+                <i class="fas fa-mosque"></i>
+            </div>
+            <div class="header-info">
+                <h1>مجلس ضاحية الرحمانية</h1>
+                <p>المساعد الذكي - الشارقة</p>
+            </div>
+        </div>
+        <div class="header-right">
+            <button class="header-btn" id="toggleSidebar" title="إظهار/إخفاء الشريط الجانبي">
+                <i class="fas fa-bars"></i>
+            </button>
+            <button class="header-btn" id="newChatBtn" title="محادثة جديدة">
+                <i class="fas fa-plus"></i>
+            </button>
+            <div class="user-avatar">
+                <i class="fas fa-user"></i>
+            </div>
+        </div>
+    </header>
+
+    <!-- التصميم الرئيسي -->
+    <div class="app-container">
+        <!-- الشريط الجانبي -->
+        <div class="sidebar hidden" id="sidebar">
+            <div class="sidebar-header">
+                <h3>أدوات المساعدة</h3>
+                <button class="close-sidebar" id="closeSidebar">&times;</button>
+            </div>
+            <div class="sidebar-content">
+                <div class="sidebar-section">
+                    <div class="section-title">
+                        <i class="fas fa-bolt"></i>
+                        <span>إجراءات سريعة</span>
+                    </div>
+                    <div class="quick-actions">
+                        <div class="action-btn" id="emergencyBtn">
+                            <i class="fas fa-phone-alt"></i>
+                            <span>الطوارئ</span>
+                        </div>
+                        <div class="action-btn" id="complaintBtn">
+                            <i class="fas fa-comment-medical"></i>
+                            <span>تقديم شكوى</span>
+                        </div>
+                        <div class="action-btn" id="suggestionBtn">
+                            <i class="fas fa-lightbulb"></i>
+                            <span>مقترح جديد</span>
+                        </div>
+                        <div class="action-btn" id="eventsBtn">
+                            <i class="fas fa-calendar-alt"></i>
+                            <span>الفعاليات</span>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="sidebar-section">
+                    <div class="section-title">
+                        <i class="fas fa-question-circle"></i>
+                        <span>أسئلة مقترحة</span>
+                    </div>
+                    <div class="suggested-questions" id="suggestedQuestions">
+                        <!-- سيتم ملؤها بالجافاسكريبت -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- منطقة المحادثة الرئيسية -->
+        <div class="chat-container">
+            <!-- منطقة الرسائل الكبيرة -->
+            <div class="chat-messages" id="chatMessages">
+                <!-- رسالة ترحيب كبيرة -->
+                <div class="welcome-section" id="welcomeMessage">
+                    <div class="welcome-icon">
+                        <i class="fas fa-comments"></i>
+                    </div>
+                    <h2>مرحباً بك في مجلس الرحمانية الذكي</h2>
+                    <p>أنا مساعدك الذكي للإجابة على جميع استفساراتك عن ضاحية الرحمانية. يمكنك سؤالي عن أي شيء - الخدمات، المرافق، الفعاليات، أو أي موضوع آخر يخص الضاحية.</p>
+                    
+                    <div class="welcome-features">
+                        <div class="welcome-feature">
+                            <i class="fas fa-comment-dots"></i>
+                            <h4>محادثة ذكية</h4>
+                            <p>أجيب على أي سؤال بشكل تفصيلي ودقيق</p>
+                        </div>
+                        <div class="welcome-feature">
+                            <i class="fas fa-bolt"></i>
+                            <h4>رد سريع</h4>
+                            <p>إجابات فورية لجميع استفساراتك</p>
+                        </div>
+                        <div class="welcome-feature">
+                            <i class="fas fa-lightbulb"></i>
+                            <h4>أسئلة مقترحة</h4>
+                            <p>أسئلة شائعة لتسريع محادثتك</p>
+                        </div>
+                        <div class="welcome-feature">
+                            <i class="fas fa-headset"></i>
+                            <h4>دعم متكامل</h4>
+                            <p>مساعدة في جميع الخدمات والاستفسارات</p>
+                        </div>
+                    </div>
+                    
+                    <p style="font-size: 1rem; color: var(--primary-color); font-weight: 600;">
+                        ابدأ بكتابة سؤالك في المربع أدناه...
+                    </p>
+                </div>
+                <!-- سيتم إضافة الرسائل هنا -->
+            </div>
+
+            <!-- منطقة الإدخال الكبيرة -->
+            <div class="input-container">
+                <div class="input-wrapper">
+                    <div class="input-area">
+                        <textarea 
+                            id="messageInput" 
+                            class="message-input" 
+                            placeholder="اكتب سؤالك هنا عن أي شيء يخص ضاحية الرحمانية..." 
+                            rows="2"
+                            autofocus
+                        ></textarea>
+                        <button id="sendButton" class="send-button">
+                            <i class="fas fa-paper-plane"></i>
+                        </button>
+                    </div>
+                    <div class="input-footer">
+                        <div class="typing-indicator" id="typingIndicator" style="display: none;">
+                            <i class="fas fa-keyboard"></i>
+                            <span>جاري الكتابة...</span>
+                        </div>
+                        <div class="input-actions">
+                            <div class="input-action" id="voiceInputBtn">
+                                <i class="fas fa-microphone"></i>
+                                <span>تحدث</span>
+                            </div>
+                            <div class="input-action" id="attachBtn">
+                                <i class="fas fa-paperclip"></i>
+                                <span>إرفاق</span>
+                            </div>
+                            <div class="input-action" id="clearInputBtn">
+                                <i class="fas fa-times"></i>
+                                <span>مسح</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- الفوتر المدمج -->
+            <div class="chat-footer">
+                <div>
+                    مجلس ضاحية الرحمانية - الشارقة © 2023
+                </div>
+                <div>
+                    نظام الذكاء الاصطناعي التفاعلي - الإصدار 3.0
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- إشعارات -->
+    <div class="notification hidden" id="notification">
+        <i class="fas fa-check-circle"></i>
+        <span id="notificationText">تم إرسال رسالتك</span>
+    </div>
+
+    <script>
+        // قاعدة معرفة موسعة
+        const knowledgeBase = {
+            // معلومات عامة
+            general: {
+                name: "ضاحية الرحمانية",
+                location: "إمارة الشارقة، الإمارات العربية المتحدة",
+                area: "12 كيلومتر مربع",
+                population: "35,000 نسمة",
+                neighborhoods: ["المنطقة 1", "المنطقة 2", "المنطقة 3", "المنطقة 4", "المنطقة التجارية"],
+                description: "ضاحية سكنية راقية تضم مجمعات سكنية ومرافق متكاملة ومساحات خضراء واسعة"
+            },
+            
+            // خدمات الطوارئ
+            emergency: {
+                police: "999",
+                ambulance: "998",
+                fire: "997",
+                municipality: "993",
+                electricity: "991",
+                water: "992",
+                localPolice: "06-5432400",
+                healthCenter: "06-5432300"
+            },
+            
+            // الخدمات البلدية
+            municipality: {
+                location: "المنطقة التجارية، مبنى البلدية",
+                hours: "الأحد-الخميس: 7:30 ص - 2:30 م",
+                phone: "06-5432111",
+                services: [
+                    "تراخيص البناء والتجديد",
+                    "شهادات الإنجاز",
+                    "رخص المحلات التجارية",
+                    "شكاوى النظافة العامة",
+                    "خدمات الحدائق والمسطحات الخضراء"
+                ]
+            },
+            
+            // المرافق الصحية
+            health: {
+                centers: [
+                    {
+                        name: "مركز الرحمانية الصحي",
+                        location: "المنطقة 3 - شارع الخليج",
+                        hours: "24 ساعة",
+                        phone: "06-5432300",
+                        services: ["طوارئ", "عيادات خارجية", "مختبر", "صيدلية"]
+                    },
+                    {
+                        name: "مستشفى الرحمانية التخصصي",
+                        location: "المنطقة التجارية",
+                        hours: "8 ص - 10 م",
+                        phone: "06-5432311",
+                        services: ["باطنية", "أطفال", "نساء وولادة", "عظام"]
+                    }
+                ],
+                pharmacies: [
+                    {name: "صيدلية الرحمانية", location: "المنطقة 2", phone: "06-5432322", hours: "24 ساعة"},
+                    {name: "صيدلية النخيل", location: "المنطقة التجارية", phone: "06-5432323", hours: "8 ص - 12 م"}
+                ]
+            },
+            
+            // التعليم
+            education: {
+                schools: [
+                    {
+                        name: "مدرسة الرحمانية النموذجية",
+                        type: "حكومي",
+                        levels: "روضة - صف 12",
+                        location: "المنطقة 1",
+                        phone: "06-5432500"
+                    },
+                    {
+                        name: "مدرسة الرحمانية الدولية",
+                        type: "خاص",
+                        levels: "روضة - صف 12",
+                        location: "المنطقة 2",
+                        phone: "06-5432511"
+                    }
+                ],
+                library: {
+                    name: "مكتبة الرحمانية العامة",
+                    location: "بجوار المركز المجتمعي",
+                    hours: "الأحد-الخميس: 9 ص - 9 م | الجمعة: 2 م - 9 م | السبت: 9 ص - 2 م",
+                    phone: "06-5432200"
+                }
+            },
+            
+            // المرافق الترفيهية
+            recreation: {
+                parks: [
+                    {
+                        name: "حديقة الرحمانية المركزية",
+                        location: "بجوار المسجد الكبير",
+                        size: "15,000 م²",
+                        features: ["ملاعب أطفال", "ممرات مشي", "مسرح مكشوف", "مقاهي"],
+                        hours: "24 ساعة"
+                    },
+                    {
+                        name: "حديقة الكورنيش",
+                        location: "على شاطئ الضاحية",
+                        size: "8,000 م²",
+                        features: ["أماكن شواء", "حمامات", "مقاعد شاطئية"],
+                        hours: "6 ص - 12 م"
+                    }
+                ],
+                beach: {
+                    name: "شاطئ الرحمانية العام",
+                    length: "2 كم",
+                    facilities: ["حمامات عامة", "كشك إنقاذ", "كراسي شاطئ"],
+                    hours: "6 ص - 12 م",
+                    rules: ["ممنوع الشواء", "ممنوع الحيوانات الأليفة"]
+                }
+            }
+        };
+
+        // الأسئلة المقترحة
+        const suggestedQuestions = [
+            "ما هي مواعيد جمع النفايات في الرحمانية؟",
+            "أين يقع مركز الشرطة في الرحمانية؟",
+            "كيف يمكنني تجديد رخصة السكن؟",
+            "ما هي أرقام الطوارئ المهمة؟",
+            "هل هناك فعاليات هذا الأسبوع في الرحمانية؟",
+            "أين يمكنني ممارسة الرياضة في الرحمانية؟",
+            "ما هي أفضل المدارس في المنطقة؟",
+            "كيف أقدم شكوى بخصوص النظافة؟",
+            "أين توجد مكتبة الرحمانية وما هي ساعات العمل؟",
+            "ما هي الخدمات المتوفرة في المركز الصحي؟",
+            "هل هناك مراكز إعادة تدوير في الرحمانية؟",
+            "كيف يمكنني الحصول على ترخيص بناء؟",
+            "ما هي حدود السرعة في الشوارع السكنية؟",
+            "أين يوجد سوق الخضار في الرحمانية؟",
+            "ما هي خدمات المركز المجتمعي؟",
+            "هل هناك مسارات للمشي في الرحمانية؟",
+            "ما هي تكلفة الاشتراك في النادي الرياضي؟",
+            "أين يمكنني تجديد رخصة القيادة؟",
+            "ما هي الخدمات المصرفية المتوفرة؟",
+            "كيف يمكنني التبليغ عن عطل في إنارة الشارع؟"
+        ];
+
+        // بيانات التطبيق
+        let chatHistory = JSON.parse(localStorage.getItem('rahmaniyahChat')) || [];
+        let currentChatId = null;
+        let isAIThinking = false;
+
+        // تهيئة التطبيق
+        document.addEventListener('DOMContentLoaded', function() {
+            initApp();
+            setupEventListeners();
+            renderSuggestedQuestions();
+            
+            // تحميل المحادثة الأخيرة إذا وجدت
+            if (chatHistory.length > 0) {
+                loadLatestChat();
+            }
+            
+            // التركيز على حقل الإدخال
+            document.getElementById('messageInput').focus();
+        });
+
+        // تهيئة التطبيق
+        function initApp() {
+            // ضبط ارتفاع صندوق الإدخال تلقائياً
+            const messageInput = document.getElementById('messageInput');
+            messageInput.addEventListener('input', function() {
+                this.style.height = 'auto';
+                this.style.height = (this.scrollHeight) + 'px';
+                
+                // إظهار/إخفاء مؤشر الكتابة
+                const typingIndicator = document.getElementById('typingIndicator');
+                if (this.value.length > 0) {
+                    typingIndicator.style.display = 'flex';
+                } else {
+                    typingIndicator.style.display = 'none';
+                }
+                
+                // الحد الأقصى للأحرف
+                if (this.value.length > 1500) {
+                    this.value = this.value.substring(0, 1500);
+                    showNotification('تم الوصول إلى الحد الأقصى للأحرف (1500 حرف)', 'info');
+                }
+            });
+            
+            // الإرسال بالضغط على Enter (بدون Shift)
+            messageInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendMessage();
+                }
+            });
+            
+            // الإرسال بالضغط على Ctrl+Enter لإضافة سطر جديد
+            messageInput.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter' && e.ctrlKey) {
+                    this.value = this.value + '\n';
+                    this.style.height = 'auto';
+                    this.style.height = (this.scrollHeight) + 'px';
+                }
+            });
+        }
+
+        // إعداد مستمعي الأحداث
+        function setupEventListeners() {
+            // زر الإرسال
+            document.getElementById('sendButton').addEventListener('click', sendMessage);
+            
+            // تبديل الشريط الجانبي
+            document.getElementById('toggleSidebar').addEventListener('click', toggleSidebar);
+            document.getElementById('closeSidebar').addEventListener('click', toggleSidebar);
+            
+            // محادثة جديدة
+            document.getElementById('newChatBtn').addEventListener('click', startNewChat);
+            
+            // إجراءات سريعة
+            document.getElementById('emergencyBtn').addEventListener('click', showEmergencyInfo);
+            document.getElementById('complaintBtn').addEventListener('click', startComplaintProcess);
+            document.getElementById('suggestionBtn').addEventListener('click', startSuggestionProcess);
+            document.getElementById('eventsBtn').addEventListener('click', showUpcomingEvents);
+            
+            // أزرار الإدخال
+            document.getElementById('voiceInputBtn').addEventListener('click', () => showNotification('ميزة الصوت قيد التطوير', 'info'));
+            document.getElementById('attachBtn').addEventListener('click', () => showNotification('ميزة الإرفاق قيد التطوير', 'info'));
+            document.getElementById('clearInputBtn').addEventListener('click', clearInput);
+        }
+
+        // عرض الأسئلة المقترحة
+        function renderSuggestedQuestions() {
+            const container = document.getElementById('suggestedQuestions');
+            container.innerHTML = '';
+            
+            // اختيار 6 أسئلة عشوائية
+            const shuffledQuestions = [...suggestedQuestions].sort(() => 0.5 - Math.random()).slice(0, 6);
+            
+            shuffledQuestions.forEach(question => {
+                const questionElement = document.createElement('div');
+                questionElement.className = 'suggested-question';
+                questionElement.textContent = question;
+                
+                questionElement.addEventListener('click', () => {
+                    document.getElementById('messageInput').value = question;
+                    document.getElementById('messageInput').focus();
+                    
+                    // تحديث ارتفاع الصندوق
+                    const messageInput = document.getElementById('messageInput');
+                    messageInput.style.height = 'auto';
+                    messageInput.style.height = (messageInput.scrollHeight) + 'px';
+                    
+                    // إظهار مؤشر الكتابة
+                    document.getElementById('typingIndicator').style.display = 'flex';
+                });
+                
+                container.appendChild(questionElement);
+            });
+        }
+
+        // تبديل الشريط الجانبي
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('hidden');
+            sidebar.classList.toggle('visible');
+        }
+
+        // إرسال رسالة
+        function sendMessage() {
+            const messageInput = document.getElementById('messageInput');
+            const message = messageInput.value.trim();
+            
+            if (!message) {
+                showNotification('الرجاء كتابة سؤال قبل الإرسال', 'info');
+                return;
+            }
+            
+            if (isAIThinking) {
+                showNotification('الرجاء الانتظار حتى انتهاء الرد السابق', 'info');
+                return;
+            }
+            
+            // إنشاء محادثة جديدة إذا لم تكن موجودة
+            if (!currentChatId) {
+                startNewChat();
+            }
+            
+            // إضافة رسالة المستخدم
+            addMessageToChat('user', message);
+            messageInput.value = '';
+            messageInput.style.height = 'auto';
+            document.getElementById('typingIndicator').style.display = 'none';
+            
+            // إظهار مؤشر التفكير
+            showThinkingIndicator();
+            
+            // معالجة السؤال وتوليد الرد
+            setTimeout(() => {
+                const response = processQuestion(message);
+                generateAIResponse(message, response);
+            }, 800 + Math.random() * 700);
+        }
+
+        // معالجة السؤال
+        function processQuestion(question) {
+            const lowerQuestion = question.toLowerCase();
+            
+            // البحث في قاعدة المعرفة
+            let response = searchInKnowledgeBase(question);
+            
+            // إذا لم يتم العثور على إجابة محددة
+            if (!response.found) {
+                response = provideGeneralHelp(question);
+            }
+            
+            return response;
+        }
+
+        // البحث في قاعدة المعرفة
+        function searchInKnowledgeBase(question) {
+            const lowerQuestion = question.toLowerCase();
+            let found = false;
+            let answer = '';
+            let followUpQuestions = [];
+            
+            // معلومات عامة
+            if (containsAny(lowerQuestion, ['عن الرحمانية', 'معلومات عامة', 'تأسيس', 'مساحة', 'سكان'])) {
+                const general = knowledgeBase.general;
+                answer = `# معلومات عن ${general.name}
+                
+**الموقع:** ${general.location}
+**المساحة:** ${general.area}
+**عدد السكان:** ${general.population}
+**الأحياء:** ${general.neighborhoods.join('، ')}
+**الوصف:** ${general.description}`;
+                found = true;
+                followUpQuestions = [
+                    "ما هي المرافق المتوفرة في الرحمانية؟",
+                    "ما هي أفضل الأحياء للسكن؟",
+                    "ما هي الخدمات الحكومية المتوفرة؟"
+                ];
+            }
+            
+            // الطوارئ
+            else if (containsAny(lowerQuestion, ['طوارئ', 'شرطة', 'إسعاف', 'مطافئ', 'أرقام مهمة'])) {
+                const emergency = knowledgeBase.emergency;
+                answer = `# أرقام الطوارئ في الرحمانية
+                
+## الأرقام الوطنية:
+• **الشرطة:** ${emergency.police}
+• **الإسعاف:** ${emergency.ambulance}
+• **المطافئ:** ${emergency.fire}
+• **البلدية:** ${emergency.municipality}
+• **الكهرباء:** ${emergency.electricity}
+• **المياه:** ${emergency.water}
+
+## الأرقام المحلية:
+• **مركز شرطة الرحمانية:** ${emergency.localPolice}
+• **المركز الصحي:** ${emergency.healthCenter}
+
+**نصيحة:** احفظ هذه الأرقام في هاتفك للطوارئ.`;
+                found = true;
+                followUpQuestions = [
+                    "ما هي إجراءات التبليغ عن حادث؟",
+                    "أين يقع مركز الشرطة الأقرب؟",
+                    "كيف يمكنني التبليغ عن حالة طارئة؟"
+                ];
+            }
+            
+            // الخدمات البلدية
+            else if (containsAny(lowerQuestion, ['بلدية', 'ترخيص', 'شكوى', 'رخصة', 'بناء', 'نظافة'])) {
+                const municipality = knowledgeBase.municipality;
+                answer = `# خدمات بلدية الرحمانية
+                
+**الموقع:** ${municipality.location}
+**ساعات العمل:** ${municipality.hours}
+**الهاتف:** ${municipality.phone}
+
+## الخدمات المتوفرة:
+${municipality.services.map(service => `• ${service}`).join('\n')}
+
+## طرق التواصل:
+1. **زيارة المكتب:** ${municipality.location}
+2. **الهاتف:** ${municipality.phone}
+3. **التطبيق:** تطبيق "بلدية الشارقة"
+4. **الموقع الإلكتروني:** www.shjmun.gov.ae`;
+                found = true;
+                followUpQuestions = [
+                    "كيف أقدم طلب ترخيص بناء؟",
+                    "ما هي مستندات ترخيص المحل التجاري؟",
+                    "كيف أتقدم بشكوى بخصوص النظافة؟"
+                ];
+            }
+            
+            // الخدمات الصحية
+            else if (containsAny(lowerQuestion, ['مستشفى', 'صحي', 'صيدلية', 'دكتور', 'عيادة', 'طبيب'])) {
+                const health = knowledgeBase.health;
+                let centersInfo = health.centers.map(center => `
+### ${center.name}
+**الموقع:** ${center.location}
+**ساعات العمل:** ${center.hours}
+**الهاتف:** ${center.phone}
+**الخدمات:** ${center.services.join('، ')}`).join('\n\n');
+                
+                let pharmaciesInfo = health.pharmacies.map(pharmacy => `
+### ${pharmacy.name}
+**الموقع:** ${pharmacy.location}
+**ساعات العمل:** ${pharmacy.hours}
+**الهاتف:** ${pharmacy.phone}`).join('\n\n');
+                
+                answer = `# الخدمات الصحية في الرحمانية
+
+## المراكز الصحية:
+${centersInfo}
+
+## الصيدليات:
+${pharmaciesInfo}
+
+## رقم طوارئ الإسعاف: 998`;
+                found = true;
+                followUpQuestions = [
+                    "ما هي عيادات الأطفال المتوفرة؟",
+                    "هل هناك عيادات أسنان في الرحمانية؟",
+                    "ما هي أوقات عمل الصيدليات في العطل؟"
+                ];
+            }
+            
+            // التعليم
+            else if (containsAny(lowerQuestion, ['مدرسة', 'تعليم', 'مكتبة', 'دراسة', 'طلاب', 'جامعة'])) {
+                const education = knowledgeBase.education;
+                let schoolsInfo = education.schools.map(school => `
+### ${school.name}
+**النوع:** ${school.type}
+**المراحل:** ${school.levels}
+**الموقع:** ${school.location}
+**الهاتف:** ${school.phone}`).join('\n\n');
+                
+                answer = `# المؤسسات التعليمية في الرحمانية
+
+## المدارس:
+${schoolsInfo}
+
+## المكتبة:
+### ${education.library.name}
+**الموقع:** ${education.library.location}
+**ساعات العمل:** ${education.library.hours}
+**الهاتف:** ${education.library.phone}
+
+**ملاحظة:** المكتبة توفر خدمات استعارة الكتب، قاعة مطالعة، قسم الأطفال، وورش عمل ثقافية.`;
+                found = true;
+                followUpQuestions = [
+                    "ما هي رسوم المدارس الدولية؟",
+                    "هل هناك أنشطة لاصفية في المدارس؟",
+                    "كيف يمكنني التسجيل في المكتبة؟"
+                ];
+            }
+            
+            // المرافق الترفيهية
+            else if (containsAny(lowerQuestion, ['حديقة', 'شاطئ', 'نادي', 'رياضة', 'ترفيه', 'متنزه', 'ملعب'])) {
+                const recreation = knowledgeBase.recreation;
+                let parksInfo = recreation.parks.map(park => `
+### ${park.name}
+**الموقع:** ${park.location}
+**المساحة:** ${park.size}
+**ساعات العمل:** ${park.hours}
+**المرافق:** ${park.features.join('، ')}`).join('\n\n');
+                
+                answer = `# المرافق الترفيهية في الرحمانية
+
+## الحدائق العامة:
+${parksInfo}
+
+## الشاطئ العام:
+### ${recreation.beach.name}
+**الطول:** ${recreation.beach.length}
+**المرافق:** ${recreation.beach.facilities.join('، ')}
+**ساعات العمل:** ${recreation.beach.hours}
+**القواعد:** ${recreation.beach.rules.join('، ')}
+
+**نصيحة:** الشاطئ مجاني لدخول السكان ويوفر أماكن مخصصة للعائلات.`;
+                found = true;
+                followUpQuestions = [
+                    "ما هي تكلفة الاشتراك في النادي الرياضي؟",
+                    "هل هناك دروس سباحة للأطفال؟",
+                    "أين يمكنني ممارسة ركوب الدراجات؟"
+                ];
+            }
+            
+            // جمع النفايات
+            else if (containsAny(lowerQuestion, ['نفايات', 'قمامة', 'زبالة', 'نظافة', 'جمع'])) {
+                answer = `# مواعيد جمع النفايات في الرحمانية
+
+## جدول الجمع الأسبوعي:
+• **الأحد، الثلاثاء، الخميس:** 7:00 مساءً - 10:00 مساءً
+• **المناطق التجارية:** يومياً 8:00 مساءً - 11:00 مساءً
+• **المناطق الصناعية:** السبت، الإثنين، الأربعاء 6:00 مساءً - 9:00 مساءً
+
+## خلال شهر رمضان:
+• جميع المناطق: 10:00 مساءً - 1:00 صباحاً
+
+## إرشادات مهمة:
+1. ضع أكياس النفايات في الأماكن المخصصة قبل موعد الجمع بساعة
+2. استخدم الأكياس المخصصة للنفايات
+3. افصل النفايات القابلة للتدوير (الورق، البلاستيك، المعادن)
+4. للإبلاغ عن عدم جمع النفايات: اتصل على 993
+
+## مراكز إعادة التدوير:
+• المركز الرئيسي: المنطقة الصناعية
+• نقاط الجمع: بجانب كل مجمع سكني (حاويات ملونة)`;
+                found = true;
+                followUpQuestions = [
+                    "أين توجد حاويات إعادة التدوير؟",
+                    "كيف أتخلص من الأثاث القديم؟",
+                    "ما هي عقوبة رمي النفايات في غير الأماكن المخصصة؟"
+                ];
+            }
+            
+            // الفعاليات
+            else if (containsAny(lowerQuestion, ['فعالية', 'نشاط', 'مناسبة', 'حدث', 'مهرجان'])) {
+                answer = `# الفعاليات القادمة في الرحمانية
+
+## فعاليات نوفمبر 2023 - يناير 2024:
+
+### 1. معرض الكتاب السنوي
+**التاريخ:** 15-20 نوفمبر 2023
+**المكان:** المركز المجتمعي
+**التوقيت:** 4:00 مساءً - 10:00 مساءً
+**الوصف:** عرض للكتب ودور النشر وجلسات توقيع مع الكتاب
+
+### 2. يوم النظافة البيئي
+**التاريخ:** 25 نوفمبر 2023
+**المكان:** شاطئ الرحمانية
+**التوقيت:** 8:00 صباحاً - 12:00 ظهراً
+**الوصف:** حملة تنظيف للشاطئ بمشاركة المجتمع
+
+### 3. ماراثون الرحمانية الصحي
+**التاريخ:** 10 ديسمبر 2023
+**المكان:** طريق الكورنيش
+**التوقيت:** 6:00 صباحاً - 9:00 صباحاً
+**المسافات:** 5 كم و 10 كم
+
+### 4. مهرجان التراث
+**التاريخ:** 20-25 يناير 2024
+**المكان:** حديقة الرحمانية المركزية
+**الوصف:** فعاليات تراثية وألعاب شعبية وأطعمة تقليدية
+
+## الفعاليات الدورية:
+• **سوق المنتجات المحلية:** كل جمعة (4 مساءً - 10 مساءً)
+• **ورش العمل الثقافية:** كل يوم سبت في المركز المجتمعي
+• **أنشطة الأطفال:** كل يوم جمعة في الحديقة المركزية
+
+**لمزيد من المعلومات والتسجيل:** تابع صفحة مجلس الرحمانية على وسائل التواصل الاجتماعي.`;
+                found = true;
+                followUpQuestions = [
+                    "كيف يمكنني التسجيل في فعالية معينة؟",
+                    "هل هناك فعاليات للأطفال هذا الأسبوع؟",
+                    "ما هي مواعيد سوق الجمعة؟"
+                ];
+            }
+            
+            return { found, answer, followUpQuestions };
+        }
+
+        // تقديم مساعدة عامة
+        function provideGeneralHelp(question) {
+            let answer = '';
+            let followUpQuestions = [];
+            
+            if (question.includes('؟') || question.includes('كيف') || question.includes('متى') || question.includes('أين')) {
+                answer = `# شكراً لسؤالك: "${question}"
+                
+أنا مساعد الذكاء الاصطناعي لمجلس ضاحية الرحمانية، وأساعد في الإجابة على الأسئلة المتعلقة بالضاحية.
+
+للحصول على أفضل مساعدة، يرجى:
+1. **تحديد موضوع سؤالك** (خدمات، مرافق، فعاليات، إلخ)
+2. **استخدام الأسئلة المقترحة** في الشريط الجانبي
+3. **صياغة السؤال بشكل واضح ومحدد**
+
+## أمثلة لأسئلة يمكنني الإجابة عليها:
+• "ما هي مواعيد جمع النفايات في المنطقة السكنية؟"
+• "أين يقع المركز الصحي في الرحمانية؟"
+• "كيف يمكنني التبليغ عن عطل في إنارة الشارع؟"
+• "ما هي الفعاليات القادمة هذا الشهر؟"
+
+كيف يمكنني مساعدتك بشكل أفضل؟`;
+                followUpQuestions = suggestedQuestions.slice(0, 4);
+            } else {
+                answer = `# مرحباً بك في مجلس الرحمانية الذكي! 👋
+
+أنا مساعدك الذكي للإجابة على جميع استفساراتك عن **ضاحية الرحمانية** في الشارقة.
+
+## يمكنني مساعدتك في:
+✅ **الخدمات البلدية** (تراخيص، شكاوى، معاملات)
+✅ **المرافق العامة** (حدائق، شواطئ، مراكز رياضية)
+✅ **الخدمات الصحية** (مستشفيات، صيدليات، عيادات)
+✅ **التعليم** (مدارس، مكتبة، جامعات)
+✅ **الفعاليات والأنشطة** المجتمعية
+✅ **أرقام الطوارئ** والاتصال
+✅ **أي استفسار آخر** عن الضاحية
+
+## للبدء، يمكنك:
+1. **كتابة سؤالك** في المربع أدناه
+2. **اختيار أحد الأسئلة المقترحة** من الشريط الجانبي
+3. **استخدام الأزرار السريعة** للوصول إلى المعلومات المهمة
+
+ما هو سؤلك اليوم؟ 😊`;
+                followUpQuestions = suggestedQuestions.slice(0, 6);
+            }
+            
+            return { found: false, answer, followUpQuestions };
+        }
+
+        // توليد رد الذكاء الاصطناعي
+        function generateAIResponse(question, response) {
+            removeThinkingIndicator();
+            
+            // إضافة رد الذكاء الاصطناعي
+            addMessageToChat('ai', response.answer, response.followUpQuestions);
+        }
+
+        // إضافة رسالة إلى المحادثة
+        function addMessageToChat(sender, text, followUpQuestions = []) {
+            const chatMessages = document.getElementById('chatMessages');
+            const welcomeMessage = document.getElementById('welcomeMessage');
+            
+            // إخفاء رسالة الترحيب إذا كانت موجودة
+            if (welcomeMessage && sender === 'user') {
+                welcomeMessage.style.display = 'none';
+            }
+            
+            removeThinkingIndicator();
+            
+            // إنشاء عنصر الرسالة
+            const messageContainer = document.createElement('div');
+            messageContainer.className = `message-container ${sender}-message-container`;
+            
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}-message`;
+            
+            const time = new Date().toLocaleTimeString('ar-EG', {
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+            
+            let messageContent = '';
+            
+            if (sender === 'user') {
+                messageContent = `
+                    <div class="message-header">
+                        <div class="message-avatar user-avatar-small">
+                            <i class="fas fa-user"></i>
+                        </div>
+                        <div class="message-sender">أنت</div>
+                    </div>
+                    <div class="message-text">${text}</div>
+                    <div class="message-time">${time}</div>
+                `;
+            } else {
+                let followUpHTML = '';
+                if (followUpQuestions.length > 0) {
+                    followUpHTML = `
+                        <div class="follow-up-section">
+                            <div class="follow-up-title">
+                                <i class="fas fa-lightbulb"></i>
+                                <span>أسئلة مقترحة لمتابعة المحادثة:</span>
+                            </div>
+                            <div class="follow-up-list">
+                                ${followUpQuestions.map(q => `
+                                    <div class="follow-up-item" onclick="askFollowUpQuestion('${q.replace(/'/g, "\\'")}')">
+                                        ${q}
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                messageContent = `
+                    <div class="message-header">
+                        <div class="message-avatar ai-avatar">
+                            <i class="fas fa-robot"></i>
+                        </div>
+                        <div class="message-sender">مساعد الرحمانية</div>
+                    </div>
+                    <div class="message-text">${formatText(text)}</div>
+                    ${followUpHTML}
+                    <div class="message-actions">
+                        <div class="action-icon" title="مفيد" onclick="rateResponse('helpful')">
+                            <i class="fas fa-thumbs-up"></i>
+                        </div>
+                        <div class="action-icon" title="غير مفيد" onclick="rateResponse('not-helpful')">
+                            <i class="fas fa-thumbs-down"></i>
+                        </div>
+                        <div class="action-icon" title="نسخ" onclick="copyToClipboard('${text.replace(/'/g, "\\'")}')">
+                            <i class="fas fa-copy"></i>
+                        </div>
+                    </div>
+                    <div class="message-time">${time}</div>
+                `;
+            }
+            
+            messageDiv.innerHTML = messageContent;
+            messageContainer.appendChild(messageDiv);
+            chatMessages.appendChild(messageContainer);
+            
+            // التمرير إلى الأسفل
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            
+            // حفظ الرسالة
+            if (currentChatId) {
+                const chat = chatHistory.find(c => c.id === currentChatId);
+                if (chat) {
+                    chat.messages.push({
+                        sender,
+                        text,
+                        time: new Date().toISOString(),
+                        followUpQuestions: sender === 'ai' ? followUpQuestions : []
+                    });
+                    
+                    // تحديث عنوان المحادثة
+                    if (sender === 'user' && chat.messages.length === 1) {
+                        chat.title = text.length > 50 ? text.substring(0, 50) + '...' : text;
+                        chat.lastUpdated = new Date().toISOString();
+                    }
+                    
+                    // حفظ في التخزين المحلي
+                    localStorage.setItem('rahmaniyahChat', JSON.stringify(chatHistory));
+                }
+            }
+        }
+
+        // تنسيق النص
+        function formatText(text) {
+            return text
+                .replace(/^# (.*$)/gm, '<h2 style="color: var(--primary-color); margin: 15px 0 10px 0; font-size: 1.4rem;">$1</h2>')
+                .replace(/^## (.*$)/gm, '<h3 style="color: var(--secondary-color); margin: 12px 0 8px 0; font-size: 1.2rem;">$1</h3>')
+                .replace(/^### (.*$)/gm, '<h4 style="color: var(--primary-color); margin: 10px 0 6px 0; font-size: 1.1rem;">$1</h4>')
+                .replace(/\n/g, '<br>')
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                .replace(/• (.*?)(?=\n|$)/g, '<div style="margin: 8px 0; padding-right: 15px; position: relative; display: flex; align-items: flex-start;"><span style="margin-left: 8px; margin-top: 2px;">•</span><span style="flex: 1;">$1</span></div>')
+                .replace(/\d+\. (.*?)(?=\n|$)/g, '<div style="margin: 8px 0; padding-right: 15px; position: relative; display: flex; align-items: flex-start;"><span style="margin-left: 8px; margin-top: 2px;">$&</span></div>');
+        }
+
+        // عرض مؤشر التفكير
+        function showThinkingIndicator() {
+            isAIThinking = true;
+            const chatMessages = document.getElementById('chatMessages');
+            
+            const thinkingDiv = document.createElement('div');
+            thinkingDiv.className = 'thinking-indicator';
+            thinkingDiv.id = 'thinkingIndicator';
+            
+            thinkingDiv.innerHTML = `
+                <div class="message-avatar ai-avatar">
+                    <i class="fas fa-robot"></i>
+                </div>
+                <div style="flex: 1;">
+                    <div style="font-weight: 600; color: var(--primary-color); margin-bottom: 8px;">جاري البحث في قاعدة معلومات الرحمانية...</div>
+                    <div class="thinking-dots">
+                        <div class="thinking-dot"></div>
+                        <div class="thinking-dot"></div>
+                        <div class="thinking-dot"></div>
+                    </div>
+                </div>
+            `;
+            
+            chatMessages.appendChild(thinkingDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+            
+            // تعطيل زر الإرسال
+            document.getElementById('sendButton').disabled = true;
+        }
+
+        // إزالة مؤشر التفكير
+        function removeThinkingIndicator() {
+            isAIThinking = false;
+            const thinkingIndicator = document.getElementById('thinkingIndicator');
+            if (thinkingIndicator) {
+                thinkingIndicator.remove();
+            }
+            
+            // تمكين زر الإرسال
+            document.getElementById('sendButton').disabled = false;
+        }
+
+        // بدء محادثة جديدة
+        function startNewChat() {
+            currentChatId = 'chat-' + Date.now();
+            
+            // إضافة محادثة جديدة
+            const newChat = {
+                id: currentChatId,
+                title: 'محادثة جديدة',
+                messages: [],
+                lastUpdated: new Date().toISOString(),
+                createdAt: new Date().toISOString()
+            };
+            
+            chatHistory.unshift(newChat);
+            localStorage.setItem('rahmaniyahChat', JSON.stringify(chatHistory));
+            
+            // تحديث الواجهة
+            document.getElementById('chatMessages').innerHTML = '';
+            document.getElementById('welcomeMessage').style.display = 'block';
+            document.getElementById('messageInput').focus();
+            
+            showNotification('بدأت محادثة جديدة', 'success');
+        }
+
+        // تحميل آخر محادثة
+        function loadLatestChat() {
+            if (chatHistory.length > 0) {
+                const latestChat = chatHistory[0];
+                currentChatId = latestChat.id;
+                
+                // عرض الرسائل
+                const chatMessages = document.getElementById('chatMessages');
+                chatMessages.innerHTML = '';
+                
+                if (latestChat.messages.length === 0) {
+                    document.getElementById('welcomeMessage').style.display = 'block';
+                } else {
+                    document.getElementById('welcomeMessage').style.display = 'none';
+                    
+                    latestChat.messages.forEach(message => {
+                        addMessageToChat(message.sender, message.text, message.followUpQuestions || []);
+                    });
+                }
+            }
+        }
+
+        // عرض معلومات الطوارئ
+        function showEmergencyInfo() {
+            const emergency = knowledgeBase.emergency;
+            const answer = `# أرقام الطوارئ المهمة
+
+## للطوارئ الفورية:
+🚨 **الشرطة:** ${emergency.police}
+🚑 **الإسعاف:** ${emergency.ambulance}
+🚒 **المطافئ:** ${emergency.fire}
+
+## للخدمات البلدية:
+🏢 **البلدية:** ${emergency.municipality}
+💡 **الكهرباء:** ${emergency.electricity}
+💧 **المياه:** ${emergency.water}
+
+## الأرقام المحلية في الرحمانية:
+📞 **مركز شرطة الرحمانية:** ${emergency.localPolice}
+🏥 **المركز الصحي:** ${emergency.healthCenter}
+
+## نصائح مهمة:
+1. احفظ هذه الأرقام في هاتفك
+2. في حالة الطوارئ، اذكر موقعك بوضوح
+3. استخدم تطبيق "شرطة الشارقة" للإبلاغ السريع
+4. للإبلاغ عن حادث غير طارئ، استخدم الرقم 901`;
+
+            addMessageToChat('ai', answer, [
+                "ما هي إجراءات التبليغ عن حادث؟",
+                "أين يقع مركز الشرطة الأقرب؟",
+                "كيف يمكنني التبليغ عن حالة طارئة؟"
+            ]);
+        }
+
+        // بدء عملية شكوى
+        function startComplaintProcess() {
+            const answer = `# تقديم شكوى إلى مجلس الرحمانية
+
+## أنواع الشكاوى المقبولة:
+1. **شكاوى بلدية** (نظافة، طرق، إنارة، حدائق)
+2. **شكاوى أمنية** (جيران، ضوضاء، تخريب)
+3. **شكاوى على منشآت تجارية** (مخالفات، إزعاج)
+4. **شكاوى مرورية** (حوادث، مخالفات سير)
+
+## طرق التقديم:
+### 1. عبر تطبيق "بلدية الشارقة"
+- حمّل التطبيق من متجر التطبيقات
+- اختر "تقديم شكوى"
+- ارفق الصور إن وجدت
+
+### 2. عبر الموقع الإلكتروني
+- www.shjmun.gov.ae
+- قسم "الشكاوى والاقتراحات"
+
+### 3. زيارة مكتب المجلس
+- **الموقع:** مبنى المجلس - المنطقة التجارية
+- **الوقت:** الأحد-الخميس، 8 صباحاً - 3 ظهراً
+
+### 4. عبر الهاتف
+- **الرقم الموحد:** 993
+- **مكتب الشكاوى:** 06-5432111
+
+## معلومات مطلوبة:
+- الاسم ورقم الهاتف
+- موقع المشكلة بدقة
+- وصف مفصل للمشكلة
+- صور أو فيديو (إذا أمكن)
+
+## مدة المعالجة:
+- الشكاوى البسيطة: 3-5 أيام عمل
+- الشكاوى المعقدة: 7-14 يوم عمل
+- يتم إعلامك بنتيجة المعالجة عبر الهاتف أو البريد`;
+
+            addMessageToChat('ai', answer, [
+                "كيف أقدم شكوى على الجيران؟",
+                "ما هي مدة معالجة الشكوى؟",
+                "هل يمكنني متابعة شكوى سابقة؟"
+            ]);
+        }
+
+        // بدء عملية مقترح
+        function startSuggestionProcess() {
+            const answer = `# تقديم مقترح لتطوير الرحمانية
+
+## شكراً لرغبتك في المساهمة في تطوير ضاحيتنا!
+
+### المجالات التي نرحب بمقترحاتكم فيها:
+🏗️ **تطوير المرافق العامة** (حدائق، ملاعب، مسارات)
+🏢 **تحسين الخدمات البلدية** (نظافة، صيانة، إضاءة)
+🎉 **الفعاليات والأنشطة** المجتمعية
+🌳 **المشاريع البيئية** (تشجير، تدوير، نظافة)
+🚗 **تحسين البنية التحتية** (طرق، مواقف، مرافق)
+
+### طرق التقديم:
+#### 1. عبر موقع مجلس الرحمانية
+- قسم "المقترحات والتطوير"
+- نموذج إلكتروني مفصل
+
+#### 2. زيارة مكتب المجلس
+- **الموقع:** مبنى المجلس - المنطقة التجارية
+- **الوقت:** الأحد-الثلاثاء، 10 صباحاً - 1 ظهراً
+
+#### 3. المشاركة في الاجتماعات الشهرية
+- **الموعد:** أول ثلاثاء من كل شهر
+- **المكان:** قاعة الاجتماعات في المركز المجتمعي
+- **التسجيل:** عبر الموقع أو زيارة المكتب
+
+### معايير تقييم المقترحات:
+✅ **الفائدة للمجتمع** (عدد المستفيدين، التأثير الإيجابي)
+✅ **الجدوى التقنية والمالية** (التكلفة، المدة، التنفيذ)
+✅ **التوافق مع خطط التنمية** (الاستراتيجية، الأولويات)
+✅ **الابتكار والإبداع** (أفكار جديدة، حلول مبتكرة)
+
+### مكافآت وتقدير:
+- شهادات تقدير لأفضل المقترحات
+- نشر المقترحات المتميزة في نشرة المجلس
+- دعوة للمشاركة في لجان التطوير
+- تكريم في حفل المجلس السنوي
+
+**ملاحظة:** جميع المقترحات تخضع للدراسة من قبل اللجان المختصة.`;
+
+            addMessageToChat('ai', answer, [
+                "ما هي المجالات التي تحتاج تطويراً؟",
+                "كيف يمكنني المشاركة في اجتماعات المجلس؟",
+                "هل هناك جوائز لأفضل المقترحات؟"
+            ]);
+        }
+
+        // عرض الفعاليات القادمة
+        function showUpcomingEvents() {
+            const answer = `# الفعاليات والأنشطة في الرحمانية
+
+## 🗓️ فعاليات نوفمبر - ديسمبر 2023:
+
+### 1. معرض الكتاب السنوي 📚
+**التاريخ:** 15-20 نوفمبر 2023
+**المكان:** المركز المجتمعي
+**التوقيت:** 4:00 مساءً - 10:00 مساءً
+**الفئة:** جميع الأعمار
+**الرسوم:** مجاناً
+**الوصف:** أكبر معرض للكتب في الضاحية بمشاركة 50 دار نشر، جلسات توقيع، ورش قراءة للأطفال.
+
+### 2. يوم النظافة البيئي 🌊
+**التاريخ:** 25 نوفمبر 2023
+**المكان:** شاطئ الرحمانية
+**التوقيت:** 8:00 صباحاً - 12:00 ظهراً
+**الفئة:** جميع الأعمار
+**الرسوم:** مجاناً
+**التسجيل:** عبر موقع المجلس أو في المركز المجتمعي
+**المعدات:** توفر القفازات والأكياس
+
+### 3. ماراثون الرحمانية الصحي 🏃‍♂️
+**التاريخ:** 10 ديسمبر 2023
+**المكان:** طريق الكورنيش
+**المسافات:** 5 كم (هواة) / 10 كم (محترفون)
+**التسجيل:** 50 درهم (تشمل القميص والوجبة)
+**الجوائز:** 10,000 درهم إجمالي الجوائز
+
+## 📅 الفعاليات الدورية:
+
+### سوق المنتجات المحلية 🛍️
+**الموعد:** كل جمعة
+**التوقيت:** 4:00 مساءً - 10:00 مساءً
+**المكان:** ساحة المسجد الكبير
+**المعروضات:** منتجات محلية، أطعمة تقليدية، حرف يدوية
+
+### ورش العمل الثقافية 🎨
+**الموعد:** كل يوم سبت
+**التوقيت:** 5:00 مساءً - 7:00 مساءً
+**المكان:** المركز المجتمعي
+**الأنشطة:** رسم، خط عربي، حرف يدوية، طبخ
+
+### أنشطة الأطفال 👶
+**الموعد:** كل يوم جمعة
+**التوقيت:** 4:00 مساءً - 6:00 مساءً
+**المكان:** الحديقة المركزية
+**الأنشطة:** ألعاب ترفيهية، مسابقات، ورش تعليمية
+
+## 📞 للمزيد من المعلومات:
+- **الموقع:** المركز المجتمعي - المنطقة 2
+- **الهاتف:** 06-5432500
+- **البريد:** events@alrahmaniyah.ae
+- **وسائل التواصل:** @alrahmaniyah (انستغرام، تويتر)`;
+
+            addMessageToChat('ai', answer, [
+                "كيف يمكنني التسجيل في فعالية معينة؟",
+                "هل هناك فعاليات للأطفال هذا الأسبوع؟",
+                "ما هي مواعيد سوق الجمعة؟"
+            ]);
+        }
+
+        // مسح حقل الإدخال
+        function clearInput() {
+            document.getElementById('messageInput').value = '';
+            document.getElementById('messageInput').style.height = 'auto';
+            document.getElementById('typingIndicator').style.display = 'none';
+            document.getElementById('messageInput').focus();
+        }
+
+        // سؤال متابعة
+        function askFollowUpQuestion(question) {
+            document.getElementById('messageInput').value = question;
+            document.getElementById('messageInput').focus();
+            
+            // تحديث ارتفاع الصندوق
+            const messageInput = document.getElementById('messageInput');
+            messageInput.style.height = 'auto';
+            messageInput.style.height = (messageInput.scrollHeight) + 'px';
+            
+            // إظهار مؤشر الكتابة
+            document.getElementById('typingIndicator').style.display = 'flex';
+            
+            // إرسال بعد تأخير قصير
+            setTimeout(() => {
+                sendMessage();
+            }, 300);
+        }
+
+        // تقييم الرد
+        function rateResponse(rating) {
+            if (rating === 'helpful') {
+                showNotification('شكراً لتقييمك الإيجابي!', 'success');
+            } else {
+                showNotification('شكراً للملاحظة، سنعمل على تحسين إجاباتنا', 'info');
+            }
+        }
+
+        // نسخ النص
+        function copyToClipboard(text) {
+            const plainText = text.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ').replace(/<br>/g, '\n');
+            navigator.clipboard.writeText(plainText)
+                .then(() => showNotification('تم نسخ النص إلى الحافظة', 'success'))
+                .catch(() => showNotification('حدث خطأ في النسخ', 'error'));
+        }
+
+        // التحقق من وجود كلمات في النص
+        function containsAny(text, words) {
+            return words.some(word => text.includes(word));
+        }
+
+        // عرض إشعار
+        function showNotification(message, type = 'success') {
+            const notification = document.getElementById('notification');
+            const notificationText = document.getElementById('notificationText');
+            
+            notificationText.textContent = message;
+            
+            if (type === 'success') {
+                notification.style.background = 'var(--secondary-color)';
+            } else if (type === 'info') {
+                notification.style.background = 'var(--primary-color)';
+            } else if (type === 'error') {
+                notification.style.background = 'var(--danger-color)';
+            }
+            
+            notification.classList.remove('hidden');
+            
+            setTimeout(() => {
+                notification.classList.add('hidden');
+            }, 3000);
+        }
+    </script>
+</body>
+</html>
